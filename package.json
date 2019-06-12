@@ -17,16 +17,33 @@
         "Nuget"
     ],
     "activationEvents": [
-        "onCommand:extension.sayHello"
+        "*"
     ],
     "main": "./out/extension",
     "contributes": {
         "commands": [
             {
-                "command": "extension.sayHello",
-                "title": "Hello World"
+                "command": "packageExplorer.explore",
+                "title": "Package Explorer"
             }
-        ]
+        ],
+        "views": {
+            "nugetExplorer": [
+                {
+                    "id": "packageExplorer",
+                    "name": "PackageExplorer"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "icon": "resources/nuget.svg",
+                    "id": "nugetExplorer",
+                    "title": "Nuget Explorer"
+                }
+            ]
+        }
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
