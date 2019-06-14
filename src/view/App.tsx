@@ -9,17 +9,20 @@ import { setTimeout } from "timers";
 
 const { Sider, Header, Content } = Layout;
 
-let vscode = {
-    postMessage: (data: any) => console.log('vscode api not available')
-};
+// let vscode = {
+//     postMessage: (data: any) => console.log('vscode api not available'),
+//     workspace: {},
+//     options: {}
+// };
 
 declare var acquireVsCodeApi: any;
 
-try {
-    vscode = acquireVsCodeApi();
-} catch (error) {
+const vscode = acquireVsCodeApi();
+// try {
+//     const vscode = acquireVsCodeApi();
+// } catch (error) {
 
-}
+// }
 
 export interface Package {
     id: string;
@@ -63,6 +66,7 @@ export default class App extends React.Component<Props, State> {
     }
 
     render() {
+        console.log({ vscode });
         vscode.postMessage({ command: 'test' });
         const { includePreRelease, packages, loading, selectedPackage } = this.state;
         return (
@@ -121,6 +125,7 @@ export default class App extends React.Component<Props, State> {
                             </Col>
                         </Row>
 
+                        <pre>{JSON.stringify(vscode, null, 2)}</pre>
                     </Content>
                 </Layout>
             </Layout >
