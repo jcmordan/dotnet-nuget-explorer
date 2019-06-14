@@ -5,6 +5,6 @@ import App from './App';
 import './index.scss';
 
 ReactDOM.render(
-    <App />,
+    <App defaultItems={20} />,
     document.getElementById('root')
 );
