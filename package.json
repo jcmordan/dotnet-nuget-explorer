@@ -5,8 +5,21 @@
     "version": "0.0.1",
     "publisher": "jcmordan",
     "license": "MIT",
+    "scripts": {
+        "start": "webpack-dev-server ",
+        "build": "npm run compile",
+        "compile": "npx npm-run-all compile:*",
+        "compile:extension": "tsc",
+        "compile:views": "webpack --mode development",
+        "watch": "npx npm-run-all -p watch:*",
+        "watch:extension": "tsc --watch",
+        "watch:views": "webpack --watch --mode development",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "vscode:prepublish": "yarn compile",
+        "package": "vsce package"
+    },
     "engines": {
-        "vscode": "^1.25.0"
+        "vscode": "^1.35.1"
     },
     "categories": [
         "Programming Languages"
@@ -45,23 +58,13 @@
             ]
         }
     },
-    "scripts": {
-        "compile": "npx npm-run-all compile:*",
-        "compile:extension": "tsc",
-        "compile:views": "webpack --mode development",
-        "watch": "npx npm-run-all -p watch:*",
-        "watch:extension": "tsc --watch",
-        "watch:views": "webpack --watch --mode development",
-        "postinstall": "node ./node_modules/vscode/bin/install",
-        "vscode:prepublish": "yarn compile",
-        "package": "vsce package"
-    },
     "devDependencies": {
         "@types/mocha": "^2.2.42",
         "@types/node": "^7.0.43",
         "@types/react": "^16.8.20",
         "@types/react-dom": "^16.8.4",
         "css-loader": "^3.0.0",
+        "html-webpack-plugin": "^3.2.0",
         "less": "^3.7.0",
         "less-loader": "^4.1.0",
         "node-sass": "^4.12.0",
@@ -75,10 +78,12 @@
         "typescript": "^2.6.1",
         "vscode": "^1.1.6",
         "webpack": "^4.15.1",
-        "webpack-cli": "^3.0.8"
+        "webpack-cli": "^3.0.8",
+        "webpack-dev-server": "^3.7.1"
     },
     "dependencies": {
-        "antd": "^3.19.3",
+        "antd": "3.18.2",
+        "axios": "^0.19.0",
         "react": "^16.8.6",
         "react-dom": "^16.8.6"
     }

@@ -1,3 +1,4 @@
+var HtmlWebpackPlugin = require('html-webpack-plugin');
 const path = require('path');
 const tsImportPlugin = require('ts-import-plugin');
 
@@ -9,6 +10,10 @@ module.exports = {
         path: path.resolve(__dirname, 'out'),
         filename: "[name].js"
     },
+    plugins: [new HtmlWebpackPlugin({
+        template: __dirname + '/src/view/index.html',
+        filename: 'index.html'
+    })],
     optimization: {
         splitChunks: {
             cacheGroups: {
