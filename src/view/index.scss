@@ -16,3 +16,16 @@
     background: rgba(255, 255, 255, 0.2);
     margin: 16px;
   }
+
+  .infinite-container{
+    border: 1px solid #e8e8e8;
+    border-radius: 4px;
+    overflow: auto;
+    padding: 8px 24px;
+    height: 500px;
+  }
+
+  .ant-list-item.active{
+      border-bottom-width: 3px solid;
+      background-image: linear-gradient(white, lightslategray);
+  }

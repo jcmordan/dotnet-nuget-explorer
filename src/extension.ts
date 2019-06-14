@@ -39,25 +39,14 @@ export function activate(context: vscode.ExtensionContext) {
             localResourceRoots: [Uri.file(path.join(context.extensionPath, 'out'))]
         });
 
-        panel.webview.html = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="utf-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-            </head>
-            <body>
-                <div id="root"></div>
-                ${loadScript(context, 'out/vendor.js')}
-                ${loadScript(context, 'out/view.js')}
-            </body>
-            </html>
-        `;
+        panel.webview.html = getWebviewContent(context);
 
         panel.webview.onDidReceiveMessage((event) => {
             console.log(event);
         });
     });
+
+
 
     context.subscriptions.push(disposable);
 
@@ -71,9 +60,49 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(explorePackageButton);
 
-
+    vscode.window.registerWebviewPanelSerializer('packageManager', new PackageManagerSerializer(context));
 }
+
 
 // this method is called when your extension is deactivated
 export function deactivate() {
+}
+
+function getWebviewContent(context: ExtensionContext) {
+    return `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    </head>
+    <body>
+        <div id="root"></div>
+        <div id="id"></div> 
+        ${loadScript(context, 'out/vendor.js')}
+        ${loadScript(context, 'out/view.js')}
+    </body>
+    </html>
+`;
+}
+
+class PackageManagerSerializer implements vscode.WebviewPanelSerializer {
+
+    constructor(private context: ExtensionContext) {
+    }
+
+    async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+        // `state` is the state persisted using `setState` inside the webview
+        console.log(`Got state: ${state}`);
+
+        state = {
+            workspace: vscode.workspace
+        };
+
+        // Restore the content of our webview.
+        //
+        // Make sure we hold on to the `webviewPanel` passed in here and
+        // also restore any event listeners we need on it.
+        webviewPanel.webview.html = getWebviewContent(this.context);
+    }
 }

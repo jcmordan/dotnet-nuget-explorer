@@ -12,17 +12,30 @@ import * as InfiniteScroll from 'react-infinite-scroller';
 const Search = Input.Search;
 
 interface Props {
-    loadPackages: (criteria?: string | React.ChangeEvent<HTMLInputElement>) => void;
-    onInfiniteScroll: () => void;
     includePreRelease: boolean;
-    toggleIncludePreRelease: (include: boolean) => void;
     packages: Package[];
     loadMore: boolean;
     loading: boolean;
+    selected: Package | undefined;
+    loadPackages: (criteria?: string | React.ChangeEvent<HTMLInputElement>) => void;
+    toggleIncludePreRelease: (include: boolean) => void;
+    onInfiniteScroll: () => void;
     onSelect: (item: Package) => void;
 }
 
-export class PackageList extends React.Component<Props> {
+interface State {
+    selected: Package | undefined;
+}
+
+export class PackageList extends React.Component<Props, State> {
+
+    constructor(props: Props) {
+        super(props);
+        this.state = {
+            selected: props.selected
+        };
+    }
+
     public render() {
         const {
             loadPackages,
@@ -37,7 +50,7 @@ export class PackageList extends React.Component<Props> {
         return (
             <>
                 <Card
-                    loading={loading}
+                    // loading={loading}
                     bordered={false}
                     extra={
                         <>
@@ -58,29 +71,50 @@ export class PackageList extends React.Component<Props> {
                         </>
                     }>
 
-                    <InfiniteScroll
-                        initialLoad={false}
-                        pageStart={0}
-                        loadMore={onInfiniteScroll}
-                        hasMore={!loading && loadMore}
-                        useWindow={false}
-                    >
-                        <List
-                            itemLayout="horizontal"
-                            dataSource={packages}
-                            renderItem={(item: Package) => (
-                                <List.Item key={item.id}>
-                                    <List.Item.Meta
-                                        avatar={<Avatar src={item.iconUrl} />}
-                                        title={item.title}
-                                        description={item.summary || item.description}
-                                    />
-                                </List.Item>
-                            )}
-                        />,
+                    <div className="infinite-container">
+                        <InfiniteScroll
+                            initialLoad={false}
+                            pageStart={0}
+                            loadMore={onInfiniteScroll}
+                            hasMore={!loading && loadMore}
+                            useWindow={false}
+                        >
+                            <List
+                                itemLayout="horizontal"
+                                dataSource={packages}
+                                renderItem={(item: Package) => (
+                                    <List.Item
+                                        className={this.getClass(item)}
+                                        key={item.id}
+                                        onClick={() => this.onSelect(item)}>
+                                        <List.Item.Meta
+                                            avatar={
+                                                <Avatar src={item.iconUrl} />
+                                            }
+                                            title={item.title}
+                                            description={item.description.split('\n')[0]}
+                                        />
+                                    </List.Item>
+                                )}
+                            />,
                     </InfiniteScroll>
+                    </div>
                 </Card>
             </>
         );
+    }
+
+    private onSelect = (item: Package) => {
+        this.setState({
+            selected: item
+        }, () => this.props.onSelect(item));
+    }
+
+    private getClass = (item: Package) => {
+        if (!this.state.selected) {
+            return '';
+        }
+
+        return this.state.selected.id === item.id ? 'active' : '';
     }
 }

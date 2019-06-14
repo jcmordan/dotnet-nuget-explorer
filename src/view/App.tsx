@@ -4,21 +4,25 @@ import { Layout, Menu, Icon, Row, Col } from 'antd';
 import "antd/dist/antd.css";
 import { PackageList } from "./components/PackageList";
 import PackageDetails from "./components/PackageDetail";
+import { setTimeout } from "timers";
 // import { Button } from "antd/lib/radio";
 
 const { Sider, Header, Content } = Layout;
 
-let vscode = {
-    postMessage: (data: any) => console.log('vscode api not available')
-};
+// let vscode = {
+//     postMessage: (data: any) => console.log('vscode api not available'),
+//     workspace: {},
+//     options: {}
+// };
 
 declare var acquireVsCodeApi: any;
 
-try {
-    vscode = acquireVsCodeApi();
-} catch (error) {
+const vscode = acquireVsCodeApi();
+// try {
+//     const vscode = acquireVsCodeApi();
+// } catch (error) {
 
-}
+
 export interface Version {
     version: string;
     downloads: number;
@@ -43,40 +47,35 @@ interface State {
     includePreRelease: boolean;
     loading: boolean;
     selectedPackage: Package | undefined;
+    skip: number;
 }
 
+interface Props {
+    defaultItems: number
+}
 
-const nugetApiUrl = 'https://api-v2v3search-0.nuget.org/query'
-// Do stuff with api like getting the state
-export default class App extends React.Component<{}, State> {
+const nugetApiUrl = 'https://api-v2v3search-0.nuget.org/query';
+
+export default class App extends React.Component<Props, State> {
 
     public state = {
         collapsed: false,
         includePreRelease: false,
-        packages: [
-            // {
-            //     id: "NUnit",
-            //     version: "3.12.0",
-            //     description: "NUnit features a fluent assert syntax, parameterized, generic and theory tests and is user-extensible.\n\nThis package includes the NUnit 3 framework assembly, which is referenced by your tests. You will need to install version 3 of the nunit3-console program or a third-party runner that supports NUnit 3 in order to execute tests. Runners intended for use with NUnit 2.x will not run NUnit 3 tests correctly.\n\nSupported platforms:\n- .NET Framework 3.5+\n- .NET Standard 1.4+\n- .NET Core",
-            //     iconUrl: "https://cdn.rawgit.com/nunit/resources/master/images/icon/nunit_256.png",
-            //     title: "NUnit",
-            //     summary:""
-            // }
-        ],
+        packages: [],
         loading: true,
-        selectedPackage: undefined
+        selectedPackage: undefined,
+        skip: 0
     };
 
-
-    constructor() {
-        super({});
-        this.loadPackages();
+    constructor(props: Props) {
+        super(props);
+        setTimeout(() => { this.loadPackages(); }, 200);
     }
 
     render() {
-        // Display a message box to the user
+        console.log({ vscode });
         vscode.postMessage({ command: 'test' });
-        const { includePreRelease, packages, loading } = this.state;
+        const { includePreRelease, packages, loading, selectedPackage } = this.state;
         return (
             <Layout>
                 <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
@@ -115,15 +114,16 @@ export default class App extends React.Component<{}, State> {
                         }}
                     >
                         <Row>
-                            <Col span="12">
+                            <Col span={12}>
                                 <PackageList
                                     packages={packages}
                                     includePreRelease={includePreRelease}
                                     toggleIncludePreRelease={this.toggleIncludePreRelease}
                                     loadPackages={this.loadPackages}
-                                    onInfiniteScroll={this.handleInfiniteOnLoad}
                                     loadMore={true}
                                     loading={loading}
+                                    selected={selectedPackage}
+                                    onInfiniteScroll={this.handleInfiniteOnLoad}
                                     onSelect={this.onSelectPackage}
                                 />
                             </Col>
@@ -132,6 +132,7 @@ export default class App extends React.Component<{}, State> {
                             </Col>
                         </Row>
 
+                        <pre>{JSON.stringify(vscode, null, 2)}</pre>
                     </Content>
                 </Layout>
             </Layout >
@@ -150,12 +151,20 @@ export default class App extends React.Component<{}, State> {
         });
     }
 
-    private loadPackages = (criteria?: string | React.ChangeEvent<HTMLInputElement>) => {
-        let uri = nugetApiUrl;
+    private loadPackages = (criteria?: string | React.ChangeEvent<HTMLInputElement>, apendResult: boolean = false) => {
+        const { includePreRelease, skip, packages } = this.state;
+
+        let uri = `${nugetApiUrl}?take=${this.props.defaultItems}`;
         if (criteria) {
             const searchValue = typeof criteria === 'string' ? criteria : (criteria as React.ChangeEvent<HTMLInputElement>).target.value;
             uri = `${nugetApiUrl}?q=${searchValue}`;
         }
+
+        if (apendResult) {
+            uri += `&skip=${skip}`;
+        }
+
+        uri += `&prerelease=${includePreRelease}`;
 
         this.setState({
             loading: true
@@ -163,8 +172,8 @@ export default class App extends React.Component<{}, State> {
 
         Axios.get(uri)
             .then(response => {
+                const items: Package[] = apendResult ? packages.concat(response.data.data) : response.data.data;
 
-                const items: Package[] = response.data.data;
                 this.setState({
                     packages: items,
                     loading: false,
@@ -181,8 +190,8 @@ export default class App extends React.Component<{}, State> {
 
     private handleInfiniteOnLoad = () => {
         this.setState({
-            loading: true,
-        });
+            skip: this.state.skip + this.props.defaultItems
+        }, () => this.loadPackages(undefined, true));
     }
 
     onSelectPackage = (item: Package) => {
