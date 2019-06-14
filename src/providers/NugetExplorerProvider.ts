@@ -1,9 +1,7 @@
 import {
-    WorkspaceFolder,
     TreeDataProvider,
     Event,
     TreeItem,
-    ProviderResult,
     TreeItemCollapsibleState,
     Command,
     EventEmitter

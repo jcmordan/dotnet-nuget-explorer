@@ -2,9 +2,21 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { NugetExplorerProvider, Options } from './views/NugetExplorerProvider';
-import { TreeView, window } from 'vscode';
+import { NugetExplorerProvider, Options } from './providers/NugetExplorerProvider';
+import {
+    TreeView,
+    window,
+    Uri,
+    ViewColumn,
+    ExtensionContext
+} from 'vscode';
+import * as path from 'path';
+
 let treeView: TreeView<Options>;
+
+function loadScript(context: ExtensionContext, path: string) {
+    return `<script src="${Uri.file(context.asAbsolutePath(path)).with({ scheme: 'vscode-resource' }).toString()}"></script>`;
+}
 
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
@@ -20,8 +32,32 @@ export function activate(context: vscode.ExtensionContext) {
     let disposable = vscode.commands.registerCommand('packageExplorer.explore', () => {
         // The code you place here will be executed every time your command is executed
 
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Package explorer');
+
+
+        const panel = window.createWebviewPanel('packageManager', "Package Manager", ViewColumn.Active, {
+            enableScripts: true,
+            retainContextWhenHidden: true,
+            localResourceRoots: [Uri.file(path.join(context.extensionPath, 'out'))]
+        });
+
+        panel.webview.html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+            </head>
+            <body>
+                <div id="root"></div>
+                ${loadScript(context, 'out/vendor.js')}
+                ${loadScript(context, 'out/view.js')}
+            </body>
+            </html>
+        `;
+
+        panel.webview.onDidReceiveMessage((event) => {
+            console.log(event);
+        });
     });
 
     context.subscriptions.push(disposable);
@@ -31,15 +67,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     context.subscriptions.push(treeView);
 
-    // console.log(treeView);
-
-    // vscode.commands.registerCommand('packageExplorer.viewPackage', task => {
-    //     vscode.tasks.executeTask(task).then(function (value) {
-    //         return value;
-    //     }, function (e) {
-    //         console.error('Error');
-    //     });
-    // });
 }
 
 // this method is called when your extension is deactivated

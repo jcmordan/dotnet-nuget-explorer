@@ -1,23 +1,24 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
+        "module": "es2015",
+        "moduleResolution": "node",
         "target": "es6",
         "outDir": "out",
         "lib": [
             "es6",
             "dom"
         ],
+        "jsx": "react",
         "sourceMap": true,
-        "rootDir": "src",
+        "rootDir": "..",
         "strict": true,
         "noUnusedLocals": true,
         "noImplicitReturns": true,
         "noFallthroughCasesInSwitch": true,
-        "preserveWatchOutput": true,
+        "experimentalDecorators": true,
         "skipLibCheck": true
     },
     "exclude": [
-        "node_modules",
-        "**/view"
+        "node_modules"
     ]
 }
