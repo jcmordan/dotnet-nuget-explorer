@@ -35,6 +35,7 @@ interface State {
     error?: any;
     includePreRelease: boolean;
     loading: boolean;
+    selectedPackage: Package | undefined;
 }
 
 
@@ -54,7 +55,8 @@ export default class App extends React.Component<{}, State> {
             //     title: "NUnit"
             // }
         ],
-        loading: true
+        loading: true,
+        selectedPackage: undefined
     };
 
 
@@ -66,7 +68,7 @@ export default class App extends React.Component<{}, State> {
     render() {
         // Display a message box to the user
         vscode.postMessage({ command: 'test' });
-        const { includePreRelease, packages } = this.state;
+        const { includePreRelease, packages, loading } = this.state;
         return (
             <Layout>
                 <Sider trigger={null} collapsible collapsed={this.state.collapsed}>
@@ -105,15 +107,19 @@ export default class App extends React.Component<{}, State> {
                         }}
                     >
                         <Row>
-                            <Col span="8">
+                            <Col span="12">
                                 <PackageList
                                     packages={packages}
                                     includePreRelease={includePreRelease}
                                     toggleIncludePreRelease={this.toggleIncludePreRelease}
                                     loadPackages={this.loadPackages}
+                                    onInfiniteScroll={this.handleInfiniteOnLoad}
+                                    loadMore={true}
+                                    loading={loading}
+                                    onSelect={this.onSelectPackage}
                                 />
                             </Col>
-                            <Col span="16">
+                            <Col span="12">
                                 <PackageDetails></PackageDetails>
                             </Col>
                         </Row>
@@ -149,9 +155,12 @@ export default class App extends React.Component<{}, State> {
 
         Axios.get(uri)
             .then(response => {
+
+                const items: Package[] = response.data.data;
                 this.setState({
-                    packages: response.data.data,
-                    loading: false
+                    packages: items,
+                    loading: false,
+                    selectedPackage: items[0]
                 });
             })
             .catch(error => {
@@ -160,5 +169,17 @@ export default class App extends React.Component<{}, State> {
                     loading: false
                 });
             });
+    }
+
+    private handleInfiniteOnLoad = () => {
+        this.setState({
+            loading: true,
+        });
+    }
+
+    onSelectPackage = (item: Package) => {
+        this.setState({
+            selectedPackage: item
+        });
     }
 }

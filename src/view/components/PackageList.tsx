@@ -7,21 +7,37 @@ import {
     Avatar
 } from 'antd';
 import { Package } from "../App";
+import * as InfiniteScroll from 'react-infinite-scroller';
+
 const Search = Input.Search;
 
 interface Props {
     loadPackages: (criteria?: string | React.ChangeEvent<HTMLInputElement>) => void;
+    onInfiniteScroll: () => void;
     includePreRelease: boolean;
     toggleIncludePreRelease: (include: boolean) => void;
     packages: Package[];
+    loadMore: boolean;
+    loading: boolean;
+    onSelect: (item: Package) => void;
 }
 
 export class PackageList extends React.Component<Props> {
     public render() {
-        const { loadPackages, includePreRelease, toggleIncludePreRelease, packages } = this.props;
+        const {
+            loadPackages,
+            includePreRelease,
+            toggleIncludePreRelease,
+            packages,
+            onInfiniteScroll,
+            loadMore,
+            loading
+        } = this.props;
+
         return (
             <>
                 <Card
+                    loading={loading}
                     bordered={false}
                     extra={
                         <>
@@ -41,19 +57,28 @@ export class PackageList extends React.Component<Props> {
                                 onChange={toggleIncludePreRelease} />
                         </>
                     }>
-                    <List
-                        itemLayout="horizontal"
-                        dataSource={packages}
-                        renderItem={(item: Package) => (
-                            <List.Item key={item.id}>
-                                <List.Item.Meta
-                                    avatar={<Avatar src={item.iconUrl} />}
-                                    title={item.title}
-                                    description={item.summary}
-                                />
-                            </List.Item>
-                        )}
-                    />,
+
+                    <InfiniteScroll
+                        initialLoad={false}
+                        pageStart={0}
+                        loadMore={onInfiniteScroll}
+                        hasMore={!loading && loadMore}
+                        useWindow={false}
+                    >
+                        <List
+                            itemLayout="horizontal"
+                            dataSource={packages}
+                            renderItem={(item: Package) => (
+                                <List.Item key={item.id}>
+                                    <List.Item.Meta
+                                        avatar={<Avatar src={item.iconUrl} />}
+                                        title={item.title}
+                                        description={item.summary || item.description}
+                                    />
+                                </List.Item>
+                            )}
+                        />,
+                    </InfiniteScroll>
                 </Card>
             </>
         );
