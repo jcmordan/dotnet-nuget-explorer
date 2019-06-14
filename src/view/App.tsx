@@ -19,6 +19,11 @@ try {
 } catch (error) {
 
 }
+export interface Version {
+    version: string;
+    downloads: number;
+    button:any
+}
 
 export interface Package {
     id: string;
@@ -27,6 +32,8 @@ export interface Package {
     title: string;
     description: string;
     summary: string;
+    authors: Array<string>;
+    versions:Array<Version>
 }
 
 interface State {
@@ -52,7 +59,8 @@ export default class App extends React.Component<{}, State> {
             //     version: "3.12.0",
             //     description: "NUnit features a fluent assert syntax, parameterized, generic and theory tests and is user-extensible.\n\nThis package includes the NUnit 3 framework assembly, which is referenced by your tests. You will need to install version 3 of the nunit3-console program or a third-party runner that supports NUnit 3 in order to execute tests. Runners intended for use with NUnit 2.x will not run NUnit 3 tests correctly.\n\nSupported platforms:\n- .NET Framework 3.5+\n- .NET Standard 1.4+\n- .NET Core",
             //     iconUrl: "https://cdn.rawgit.com/nunit/resources/master/images/icon/nunit_256.png",
-            //     title: "NUnit"
+            //     title: "NUnit",
+            //     summary:""
             // }
         ],
         loading: true,
@@ -120,7 +128,7 @@ export default class App extends React.Component<{}, State> {
                                 />
                             </Col>
                             <Col span="12">
-                                <PackageDetails></PackageDetails>
+                                <PackageDetails packageDetail={this.state.selectedPackage}></PackageDetails>
                             </Col>
                         </Row>
 
