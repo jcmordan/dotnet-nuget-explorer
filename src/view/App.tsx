@@ -1,11 +1,12 @@
 import * as React from "react";
 import Axios from 'axios';
-import { Layout, Menu, Icon, List, Avatar, Card, Input, Switch, Row, Col } from 'antd';
+import { Layout, Menu, Icon, Row, Col } from 'antd';
 import "antd/dist/antd.css";
+import { PackageList } from "./components/PackageList";
+import PackageDetails from "./components/PackageDetail";
 // import { Button } from "antd/lib/radio";
 
 const { Sider, Header, Content } = Layout;
-const Search = Input.Search;
 
 let vscode = {
     postMessage: (data: any) => console.log('vscode api not available')
@@ -19,7 +20,7 @@ try {
 
 }
 
-interface Package {
+export interface Package {
     id: string;
     version: string;
     iconUrl: string;
@@ -105,43 +106,15 @@ export default class App extends React.Component<{}, State> {
                     >
                         <Row>
                             <Col span="8">
-                                <Card
-                                    bordered={false}
-                                    extra={
-                                        <>
-                                            <Search
-                                                placeholder="Search packages"
-                                                onChange={this.loadPackages}
-                                                onSearch={this.loadPackages}
-                                                style={{ width: 200, marginRight: 10 }}
-                                            />
-                                            <label>Include prerelease?</label>
-
-                                            <Switch
-                                                size="small"
-                                                style={{
-                                                    marginLeft: 5
-                                                }}
-                                                checked={includePreRelease}
-                                                onChange={this.toggleIncludePreRelease} />
-                                        </>
-                                    }>
-                                    <List
-                                        itemLayout="horizontal"
-                                        dataSource={packages}
-                                        renderItem={(item: Package) => (
-                                            <List.Item key={item.id}>
-                                                <List.Item.Meta
-                                                    avatar={<Avatar src={item.iconUrl} />}
-                                                    title={item.title}
-                                                    description={item.summary}
-                                                />
-                                            </List.Item>
-                                        )}
-                                    />,
-                        </Card>
+                                <PackageList
+                                    packages={packages}
+                                    includePreRelease={includePreRelease}
+                                    toggleIncludePreRelease={this.toggleIncludePreRelease}
+                                    loadPackages={this.loadPackages}
+                                />
                             </Col>
                             <Col span="16">
+                                <PackageDetails></PackageDetails>
                             </Col>
                         </Row>
 
