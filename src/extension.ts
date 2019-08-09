@@ -44,6 +44,14 @@ export function activate(context: vscode.ExtensionContext) {
         panel.webview.onDidReceiveMessage((event) => {
             console.log(event);
         });
+
+
+        setTimeout(() => {
+            panel.webview.postMessage({
+                date: Date.now,
+                command: 'data'
+            });
+        }, 500);
     });
 
 
@@ -81,6 +89,13 @@ function getWebviewContent(context: ExtensionContext) {
         <div id="id"></div> 
         ${loadScript(context, 'out/vendor.js')}
         ${loadScript(context, 'out/view.js')}
+        <script>
+        debugger;
+            window.value=90; 
+            window.settings = {
+                date: ${Date.now}
+            }
+        </script>
     </body>
     </html>
 `;
@@ -104,5 +119,7 @@ class PackageManagerSerializer implements vscode.WebviewPanelSerializer {
         // Make sure we hold on to the `webviewPanel` passed in here and
         // also restore any event listeners we need on it.
         webviewPanel.webview.html = getWebviewContent(this.context);
+
+
     }
 }

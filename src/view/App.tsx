@@ -44,7 +44,7 @@ interface State {
 }
 
 interface Props {
-    defaultItems: number
+    defaultItems: number;
 }
 
 const nugetApiUrl = 'https://api-v2v3search-0.nuget.org/query';
@@ -68,6 +68,9 @@ export default class App extends React.Component<Props, State> {
     render() {
         console.log({ vscode });
         vscode.postMessage({ command: 'test' });
+
+        vscode.onDidReceiveMessage(console.log);
+
         const { includePreRelease, packages, loading, selectedPackage } = this.state;
         return (
             <Layout>
