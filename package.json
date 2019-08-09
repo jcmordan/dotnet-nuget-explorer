@@ -6,7 +6,7 @@
     "publisher": "jcmordan",
     "license": "MIT",
     "scripts": {
-        "start": "webpack-dev-server ",
+        "start": "webpack-dev-server",
         "build": "npm run compile",
         "compile": "npx npm-run-all compile:*",
         "compile:extension": "tsc",

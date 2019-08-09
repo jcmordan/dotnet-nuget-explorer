@@ -22,7 +22,12 @@ const vscode = acquireVsCodeApi();
 //     const vscode = acquireVsCodeApi();
 // } catch (error) {
 
-// }
+
+export interface Version {
+    version: string;
+    downloads: number;
+    button:any
+}
 
 export interface Package {
     id: string;
@@ -31,6 +36,8 @@ export interface Package {
     title: string;
     description: string;
     summary: string;
+    authors: Array<string>;
+    versions:Array<Version>
 }
 
 interface State {
@@ -123,8 +130,8 @@ export default class App extends React.Component<Props, State> {
                                     onSelect={this.onSelectPackage}
                                 />
                             </Col>
-                            <Col span={12}>
-                                <PackageDetails></PackageDetails>
+                            <Col span="12">
+                                <PackageDetails packageDetail={this.state.selectedPackage}></PackageDetails>
                             </Col>
                         </Row>
 
